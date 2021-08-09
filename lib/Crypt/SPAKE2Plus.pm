@@ -127,10 +127,11 @@ sub calc_L {
 }
 
 sub random_le_p {
-  my ( $self ) = @_;
-  my $p        = $self->{curve_hr}->{p};
-  my $r        = Crypt::Perl::Math::randint( $p );
-  return $r;
+    # G has order p*h
+    my ( $self ) = @_;
+    my $p        = $self->{curve_hr}->{n}; #order of P
+    my $r        = Crypt::Perl::Math::randint( $p );
+    return $r;
 }
 
 sub A_calc_X {

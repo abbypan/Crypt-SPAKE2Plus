@@ -149,6 +149,6 @@ cB = MAC(KcB, ...)
 
 $k1 || $k2 = $k
 
-    my ( $k1, $k2 ) = $self->split_key( $k );
+    my ( $k1, $k2 ) = $sp->split_key( $k );
 
 =cut
