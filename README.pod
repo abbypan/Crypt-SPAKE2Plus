@@ -63,6 +63,35 @@ $label is 'M' or 'N', $X is EC Point, optional, to set $sp->{M} or $sp->{N}
     
     my $U_Point = $sp->decode_ec_point($U_bin); # 0x02, U.x ; 0x03, U.x; 0x04, U.x, U.y
 
+=head2 concat_data
+
+len(d): eight-byte little-endian number, d
+
+    my $s = $sp->concat_data(@data);
+
+=head2 calc_w0_w1
+
+w0s || w1s = PBKDF(len(pw) || pw || len(A) || A || len(B) || B)
+len(A) = len(B) = 0, w0s || w1s = PBKDF(pw)
+
+    my ($w0, $w1) = $sp->calc_w0_w1($bmod_w0_w1_sub, $pw, $A, $B, @pbkdf_args);
+
+=head2 bmod_w0_w1
+
+w0 = w0s mod p
+w1 = w1s mod p
+
+    $w0 = $sp->bmod_w0_w1($w0);
+    $w1 = $sp->bmod_w0_w1($w1);
+
+=head2 bmod_w0_w1_alt
+
+w0 = [ w0s mod (p-1) ]  + 1
+w1 = [ w1s mod (p-1) ]  + 1
+
+    $w0 = $sp->bmod_w0_w1_alt($w0);
+    $w1 = $sp->bmod_w0_w1_alt($w1);
+
 =head2 calc_L
 
 A, B: L = w1*P
@@ -74,7 +103,6 @@ P: EC Point
 =head2 random_le_p
 
 random from the integers in [0, p), to generate x and y
-    
     my $rnd_bigint = $sp->random_le_p();
 
     my $x = $sp->random_le_p();
@@ -120,6 +148,14 @@ B: Z = h*y*(X - w0*M), V = h*y*L
 TT = len(Context) || Context ||  || len(A) || A || len(B) || B  || len(M) || M || len(N) || N  || len(X) || X || len(Y) || Y  || len(Z) || Z || len(V) || V  || len(w0) || w0
 
     my $TT = $sp->generate_TT($Context, $A, $B, $X_Point, $Y_Point, $A_Calc_Z_Point, $A_Calc_V_Point, $w0);
+    my $TT = $sp->generate_TT($Context, $A, $B, $X_Point, $Y_Point, $B_Calc_Z_Point, $B_Calc_V_Point, $w0);
+
+=head2 generate_TT_alt
+
+TT = len(X) || X || len(Y) || Y  || len(Z) || Z || len(V) || V  || len(w0) || w0
+
+    my $TT = $sp->generate_TT_alt($X_Point, $Y_Point, $A_Calc_Z_Point, $A_Calc_V_Point, $w0);
+    my $TT = $sp->generate_TT_alt($X_Point, $Y_Point, $B_Calc_Z_Point, $B_Calc_V_Point, $w0);
 
 =head2 calc_Ka_and_Ke
 
@@ -129,9 +165,11 @@ Ka || Ke = Hash(TT)
 
 =head2 calc_KcA_and_KcB
 
-KcA || KcB = KDF(nil, Ka, "ConfirmationKeys")
+KcA || KcB = KDF(nil, Ka, "ConfirmationKeys".aad)
 
     my ( $KcA, $KcB ) = $sp->calc_KcA_and_KcB($Ka);
+
+    my ( $KcA, $KcB ) = $sp->calc_KcA_and_KcB($Ka, $kdf_dst_len, $aad); 
 
 =head2 A_calc_MacA
 
