@@ -95,10 +95,11 @@ is(unpack("H*", $KcA) , '0d248d7d19234f1486b2efba5179c52d', 'KcA');
 is(unpack("H*", $KcB) , '556291df26d705a2caedd6474dd0079b', 'KcB');
 
 my $MacA = $spake2plus->A_calc_MacA($KcA, $Y);
-### MacA: unpack("H*", $MacA)
+### MacA=hmac(KcA, Y): unpack("H*", $MacA)
 is(unpack("H*", $MacA), 'd4376f2da9c72226dd151b77c2919071155fc22a2068d90b5faa6c78c11e77dd');
+
 my $MacB = $spake2plus->B_calc_MacB($KcB, $X);
-### MacB: unpack("H*", $MacB)
+### MacB=hmac(KcB, X): unpack("H*", $MacB)
 is(unpack("H*", $MacB), '0660a680663e8c5695956fb22dff298b1d07a526cf3cc591adfecd1f6ef6e02e');
 
 
